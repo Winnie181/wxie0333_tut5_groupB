@@ -40,8 +40,8 @@ function setup() {
 
    // Initialize circles with positions and sizes
    for(let i = 0; i < numOfCircles; i++){
-    let circle = new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]);
-    myCircles.push(circle);
+     myCircles.push(new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]));
+
     }
 }
   
@@ -51,35 +51,44 @@ class MyCircleClass {
      this.x = x; // X position of circle
      this.y = y; // Y position of circle
      this.size = size; // Size of circle
-     this.velocityY = 0; // 垂直速度，初始为0
-     this.isDropping = false; // 是否正在掉落
      this.stroke = 0; // Stroke weight for circle outline
      this.color1 = color(228, 102, 103); // First color for half of circle (green)
      this.color2 = color(142, 171, 126); // Second color for half of circle (red)
     }
-
-    update() {
-        // 更新苹果的位置，实现掉落和弹跳
-        if (this.isDropping) {
-            this.velocityY += 0.2; // 重力加速度
-            this.y += this.velocityY;
-
-            // 如果苹果碰到底部，则反弹
-            if (this.y > height - this.size / 2) {
-                this.y = height - this.size / 2;
-                this.velocityY *= -0.6; // 反弹，并减速
-            }
-        }
-    }
-
+    // 绘制苹果
     draw() {
+        // Draw first half of the circle with color1
         fill(this.color1);
         stroke(this.stroke);
+        // Reference: https://p5js.org/zh-Hans/reference/p5/arc/
         arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
-
+        // Draw second half of the circle with color2
         fill(this.color2);
         arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
     }
+
+   // 检测鼠标是否悬停在苹果上
+   hover() {
+    let d = dist(mouseX, mouseY, this.x, this.y);
+    return d < this.size / 2;
+  }
+
+  draw() {
+    if (this.hover()) { // 悬停时改变颜色
+      fill(255, 200, 200);
+    } else {
+      fill(this.color1);
+    }
+    stroke(this.stroke);
+    arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
+
+    if (this.hover()) {
+      fill(200, 255, 200);
+    } else {
+      fill(this.color2);
+    }
+    arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
+  }
 }
   
 function draw() {
@@ -100,10 +109,9 @@ function draw() {
     text(seasonText, 200, 70);//设置字体位置
 
     // Draw each circle in the array
-    myCircles.forEach(circle => {
-        circle.update(); // 更新位置
-        circle.draw();   // 绘制苹果
-    });
+    for (let i = 0; i < numOfCircles; i++) {
+      myCircles[i].draw();
+    }
 
     stroke(0);
     strokeWeight(2);
@@ -191,12 +199,12 @@ function keyPressed() {
       seasonText = "Winter";
   }
 
-  if (key === 'd') {
-    // 随机选择一些苹果开始掉落
+  if (key === ' ') {
     myCircles.forEach(circle => {
-      if (random() < 0.2) { // 20% 概率掉落
-          circle.isDropping = true;
-      }
+      colorMode(HSB, 255); // 设置颜色模式为 HSB
+      circle.color1 = color(random(255), 60, random(100, 255));
+      circle.color2 = color(random(255), 60, random(200, 255));
+      colorMode(RGB, 255); // 恢复颜色模式为 RGB
     });
   }
 }
