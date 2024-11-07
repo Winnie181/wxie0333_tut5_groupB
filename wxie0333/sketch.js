@@ -11,8 +11,12 @@ let spacing3 = 43;  // Spacing for bottom small semicircles(2&3)
 let topX1 = 148;  // X position for bottom big semicircles(1&4)
 let topX2 = 180; // X position for bottom small semicircles(2&3) 
 let topY = 445; // Y position for bottom big+small semicircles(1-4)
-let currentBgIndex = 0;  // 当前背景的索引
-let seasonText = "Spring"; // 当前季节文字
+let currentBgIndex = 3;  // 初始背景为冬天
+let seasonText = "Winter"; // 当前季节文字
+let music = []; // 用于存储每个季节的音乐
+let currentMusic = null; // 当前播放的音乐
+let musicChanged = false;
+let isMusicStarted = false; // 标记音乐是否已开始播放
 
 function preload() {
    // Preload background image
@@ -20,6 +24,12 @@ function preload() {
    bgImages[1] = loadImage('assets/summer.jpg');
    bgImages[2] = loadImage('assets/autumn.jpg');
    bgImages[3] = loadImage('assets/winter_background.jpg');
+
+    // 预加载音乐
+    music[0] = loadSound('assets/spring.mp3');
+    music[1] = loadSound('assets/summer.mp3');
+    music[2] = loadSound('assets/autumn.mp3');
+    music[3] = loadSound('assets/winter.mp3');
 }
 
 // Positions and sizes for circles
@@ -43,6 +53,9 @@ function setup() {
      myCircles.push(new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]));
 
     }
+
+   // 播放初始背景音乐（冬季）
+   playMusic();
 }
   
 class MyCircleClass {
@@ -54,17 +67,6 @@ class MyCircleClass {
      this.stroke = 0; // Stroke weight for circle outline
      this.color1 = color(228, 102, 103); // First color for half of circle (green)
      this.color2 = color(142, 171, 126); // Second color for half of circle (red)
-    }
-    // 绘制苹果
-    draw() {
-        // Draw first half of the circle with color1
-        fill(this.color1);
-        stroke(this.stroke);
-        // Reference: https://p5js.org/zh-Hans/reference/p5/arc/
-        arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
-        // Draw second half of the circle with color2
-        fill(this.color2);
-        arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
     }
 
    // 检测鼠标是否悬停在苹果上
@@ -95,14 +97,14 @@ function draw() {
     background(bgImages[currentBgIndex]);// 绘制当前背景图
 
     // 自定义文字的颜色
-    if (seasonText === "Spring") {
-        fill(85, 170, 85); // 绿色，代表春天
+    if (seasonText === "Winter") {
+        fill(173, 216, 230);
+    } else if (seasonText === "Spring") {
+        fill(85, 170, 85);
     } else if (seasonText === "Summer") {
-        fill(121, 89, 149); // 橙色，代表夏天
+        fill(121, 89, 149);
     } else if (seasonText === "Autumn") {
-        fill(105, 56, 20); // 深橙色，代表秋天
-    } else if (seasonText === "Winter") {
-        fill(173, 216, 230); // 浅蓝色，代表冬天
+        fill(105, 56, 20);
     }
 
     noStroke();//不要字体描边
@@ -183,28 +185,64 @@ function draw() {
     line(130, 446, 270, 446);
 }
 
+function playMusic() {
+    // 如果当前有音乐在播放，先停止
+    if (currentMusic && currentMusic.isPlaying()) {
+        currentMusic.stop();
+    }
+
+    // 设置并播放新的背景音乐
+    currentMusic = music[currentBgIndex];
+    currentMusic.loop(); // 设置循环播放
+}
+
+// 用户首次点击鼠标时开始播放音乐
+function mousePressed() {
+    if (!isMusicStarted) {
+        isMusicStarted = true; // 标记音乐已开始播放
+        playMusic(); // 开始播放音乐
+    }
+}
+
 function keyPressed() {
-  // 切换背景和文字的按键控制
-  if (key === '1') {
-      currentBgIndex = 0;
-      seasonText = "Spring";
-  } else if (key === '2') {
-      currentBgIndex = 1;
-      seasonText = "Summer";
-  } else if (key === '3') {
-      currentBgIndex = 2;
-      seasonText = "Autumn";
-  } else if (key === '4') {
-      currentBgIndex = 3;
-      seasonText = "Winter";
-  }
+    // 切换背景和文字的按键控制
+    if (key === '1') {
+        currentBgIndex = 3;
+        seasonText = "Winter";
+        musicChanged = true;
+    } else if (key === '2') {
+        currentBgIndex = 0;
+        seasonText = "Spring";
+        musicChanged = true;
+    } else if (key === '3') {
+        currentBgIndex = 1;
+        seasonText = "Summer";
+        musicChanged = true;
+    } else if (key === '4') {
+        currentBgIndex = 2;
+        seasonText = "Autumn";
+        musicChanged = true;
+    }
+
+    // 如果背景改变，播放对应的音乐
+    if (musicChanged) {
+        playMusic();
+    }
 
   if (key === ' ') {
     myCircles.forEach(circle => {
       colorMode(HSB, 255); // 设置颜色模式为 HSB
-      circle.color1 = color(random(255), 60, random(100, 255));
-      circle.color2 = color(random(255), 60, random(200, 255));
+      circle.color1 = color(random(255), 60, random(180, 255));
+      circle.color2 = color(random(255), 60, random(150, 255));
       colorMode(RGB, 255); // 恢复颜色模式为 RGB
     });
   }
+
+  if (keyCode === ENTER) {
+    // 恢复每个苹果的原始颜色
+    myCircles.forEach(circle => {
+        circle.color1 = color(228, 102, 103); // 原始颜色1
+        circle.color2 = color(142, 171, 126); // 原始颜色2
+    });
+}
 }
