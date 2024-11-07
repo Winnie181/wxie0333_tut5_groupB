@@ -64,33 +64,57 @@ class MyCircleClass {
      this.x = x; // X position of circle
      this.y = y; // Y position of circle
      this.size = size; // Size of circle
+     this.originalColor1 = color(228, 102, 103);
+     this.originalColor2 = color(142, 171, 126);
      this.stroke = 0; // Stroke weight for circle outline
-     this.color1 = color(228, 102, 103); // First color for half of circle (green)
-     this.color2 = color(142, 171, 126); // Second color for half of circle (red)
+     this.color1 = this.originalColor1; // First color for half of circle (green)
+     this.color2 = this.originalColor2; // Second color for half of circle (red)
+     this.isHovered = false; // 是否悬停
+     this.isClicked = false; // 是否已被点击
     }
 
-   // 检测鼠标是否悬停在苹果上
-   hover() {
-    let d = dist(mouseX, mouseY, this.x, this.y);
-    return d < this.size / 2;
-  }
-
-  draw() {
-    if (this.hover()) { // 悬停时改变颜色
-      fill(255, 200, 200);
-    } else {
-      fill(this.color1);
+    // 检测鼠标是否在圆内
+    isMouseHovering() {
+        let d = dist(mouseX, mouseY, this.x, this.y);
+        return d < this.size / 2; // 检查距离是否小于半径
     }
-    stroke(this.stroke);
-    arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
 
-    if (this.hover()) {
-      fill(200, 255, 200);
-    } else {
-      fill(this.color2);
+    draw() {
+        if (this.isClicked) {
+            // 如果已点击，保持点击时的随机颜色
+            // 保持 color1 和 color2 不变
+        } else if (this.isMouseHovering()) {
+            if (!this.isHovered) {
+                colorMode(HSB, 255); // 设置颜色模式为 HSB
+                // 首次悬停时生成随机颜色
+                this.color1 = color(random(255), 60, random(180, 255));
+                this.color2 = color(random(255), 60, random(180, 255));
+                this.isHovered = true;
+                colorMode(RGB, 255); // 设置颜色模式为 HSB
+            }
+        } else {
+            // 鼠标移开时恢复原始颜色
+            this.color1 = this.originalColor1;
+            this.color2 = this.originalColor2;
+            this.isHovered = false;
+        }
+
+        // 绘制圆形的两半，分别填充颜色
+        fill(this.color1);
+        stroke(this.stroke);
+        arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
+
+        fill(this.color2);
+        arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
     }
-    arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
-  }
+
+    // 检测鼠标点击
+    checkClick() {
+        if (this.isMouseHovering()) {
+            // 如果点击在圆上，保留当前随机颜色
+            this.isClicked = true;
+        }
+    }
 }
   
 function draw() {
@@ -202,6 +226,11 @@ function mousePressed() {
         isMusicStarted = true; // 标记音乐已开始播放
         playMusic(); // 开始播放音乐
     }
+
+    // 在主程序的 mousePressed 函数中调用 checkClick
+    myCircles.forEach(circle => {
+        circle.checkClick();
+    });
 }
 
 function keyPressed() {
@@ -229,20 +258,12 @@ function keyPressed() {
         playMusic();
     }
 
-  if (key === ' ') {
-    myCircles.forEach(circle => {
-      colorMode(HSB, 255); // 设置颜色模式为 HSB
-      circle.color1 = color(random(255), 60, random(180, 255));
-      circle.color2 = color(random(255), 60, random(150, 255));
-      colorMode(RGB, 255); // 恢复颜色模式为 RGB
-    });
-  }
+    if (key === ' ') {
+        // 恢复每个苹果的原始颜色
+        myCircles.forEach(circle => {
+            circle.color1 = color(228, 102, 103); // 原始颜色1
+            circle.color2 = color(142, 171, 126); // 原始颜色2
+        });
+    }
+} 
 
-  if (keyCode === ENTER) {
-    // 恢复每个苹果的原始颜色
-    myCircles.forEach(circle => {
-        circle.color1 = color(228, 102, 103); // 原始颜色1
-        circle.color2 = color(142, 171, 126); // 原始颜色2
-    });
-}
-}
