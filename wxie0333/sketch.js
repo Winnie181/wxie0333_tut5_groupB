@@ -40,8 +40,8 @@ function setup() {
 
    // Initialize circles with positions and sizes
    for(let i = 0; i < numOfCircles; i++){
-     myCircles.push(new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]));
-
+    let circle = new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]);
+    myCircles.push(circle);
     }
 }
   
@@ -51,21 +51,35 @@ class MyCircleClass {
      this.x = x; // X position of circle
      this.y = y; // Y position of circle
      this.size = size; // Size of circle
+     this.velocityY = 0; // 垂直速度，初始为0
+     this.isDropping = false; // 是否正在掉落
      this.stroke = 0; // Stroke weight for circle outline
      this.color1 = color(228, 102, 103); // First color for half of circle (green)
      this.color2 = color(142, 171, 126); // Second color for half of circle (red)
     }
-    // 绘制苹果
+
+    update() {
+        // 更新苹果的位置，实现掉落和弹跳
+        if (this.isDropping) {
+            this.velocityY += 0.2; // 重力加速度
+            this.y += this.velocityY;
+
+            // 如果苹果碰到底部，则反弹
+            if (this.y > height - this.size / 2) {
+                this.y = height - this.size / 2;
+                this.velocityY *= -0.6; // 反弹，并减速
+            }
+        }
+    }
+
     draw() {
-        // Draw first half of the circle with color1
         fill(this.color1);
         stroke(this.stroke);
-        // Reference: https://p5js.org/zh-Hans/reference/p5/arc/
         arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
-        // Draw second half of the circle with color2
+
         fill(this.color2);
         arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
-       }
+    }
 }
   
 function draw() {
@@ -86,9 +100,10 @@ function draw() {
     text(seasonText, 200, 70);//设置字体位置
 
     // Draw each circle in the array
-    for (let i = 0; i < numOfCircles; i++) {
-      myCircles[i].draw();
-    }
+    myCircles.forEach(circle => {
+        circle.update(); // 更新位置
+        circle.draw();   // 绘制苹果
+    });
 
     stroke(0);
     strokeWeight(2);
@@ -176,5 +191,12 @@ function keyPressed() {
       seasonText = "Winter";
   }
 
-
+  if (key === 'd') {
+    // 随机选择一些苹果开始掉落
+    myCircles.forEach(circle => {
+      if (random() < 0.2) { // 20% 概率掉落
+          circle.isDropping = true;
+      }
+    });
+  }
 }
