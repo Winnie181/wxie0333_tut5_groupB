@@ -24,18 +24,18 @@ Press Spacebar to reset all apple colors to their original values.
 
 ## Personalized Animation Approach
 
-### Approach
+- **Approach:** 
 My approach to animation uses user interaction with the apple tree and seasonal visual themes to enhance the experience. Mouse movement and keyboard input create a unique level of interactivity, making the scene responsive to user actions.
 
-### Driver
+- **Driver:**
 The primary driver for my code is direct interaction, allowing the user to influence colors, seasonal background, and apple size, thereby giving control over the look and feel of the tree.
 
 ## Unique Animated Properties
 
-### Color and Size Variation
+- **Color and Size Variation:**
 Each apple's color changes on hover, and size adjustments are available through keyboard inputs, creating a distinctive look. This differs from other group members' contributions.
 
-### Seasonal Background and Music
+- **Seasonal Background and Music:**
 Every season comes with unique visuals and sounds, offering an immersive, multi-sensory experience.
 
 ##  Technical Explanation
