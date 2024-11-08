@@ -18,6 +18,7 @@ let currentMusic = null; // 当前播放的音乐
 let musicChanged = false;
 let isMusicStarted = false; // 标记音乐是否已开始播放
 
+
 function preload() {
    // Preload background image
    bgImages[0] = loadImage('assets/spring.jpg');
@@ -109,6 +110,9 @@ class MyCircleClass {
 
         fill(this.color2);
         arc(this.x, this.y, currentSize, currentSize, -HALF_PI, HALF_PI, PIE);
+        
+        // 自定义三条白色直线的坐标
+
     }
 
     // 检测鼠标点击
@@ -143,6 +147,19 @@ function draw() {
     noStroke();//不要字体描边
     text(seasonText, 200, 70);//设置字体位置
 
+    stroke(255); // 设置线条颜色为白色
+    strokeWeight(2); // 线条粗细
+
+    line(85, 40, 90, 120);
+    line(90, 120, 114, 130);
+    line(114, 130, 125, 245);
+    line(125, 245, 272, 248);
+    line(272, 248, 285, 125);
+    line(285, 125, 350, 125);
+    line(200, 445, 210, 204);
+    line(210, 204, 180, 183);
+    line(210, 204, 241, 170)
+    
     // Draw each circle in the array
     for (let i = 0; i < numOfCircles; i++) {
       myCircles[i].draw();
@@ -275,13 +292,15 @@ function keyPressed() {
     // 如果背景改变，播放对应的音乐
     if (musicChanged) {
         playMusic();
+        musicChanged = false; // 确保音乐不重新播放
     }
 
     if (key === ' ') {
-        // 恢复每个苹果的原始颜色
+        // 恢复每个苹果的原始颜色，并重置点击状态
         myCircles.forEach(circle => {
-            circle.color1 = color(228, 102, 103); // 原始颜色1
-            circle.color2 = color(142, 171, 126); // 原始颜色2
+            circle.color1 = circle.originalColor1; // 原始颜色1
+            circle.color2 = circle.originalColor2; // 原始颜色2
+            circle.isClicked = false; // 重置点击状态
         });
     }
 } 
