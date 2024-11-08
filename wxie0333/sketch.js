@@ -7,12 +7,12 @@ const bottomX = 111, bottomY = 494, diameter1 = 34, diameter2 = 25;
 const spacing1 = 37, spacing2 = 105, spacing3 = 43;
 const topX1 = 148, topX2 = 180, topY = 445;
 
-let currentBgIndex = 3;  // 初始背景为冬天
-let seasonText = "Winter"; // 当前季节文字
+let currentBgIndex = 3;  // Initial background is winter
+let seasonText = "Winter"; // Initial season text
 let music = []; // Background music
-let currentMusic = null; // 当前播放的音乐
-let isMusicStarted = false, let musicChanged = false;
-
+let currentMusic = null; // Play music
+let musicStart = false, musicChanged = false
+let canvas;
 
 function preload() {
    // Preload background image
@@ -44,7 +44,8 @@ let circleDiameters = [
 
 function setup() {
    createCanvas(400, 800);
-
+   canvas = createCanvas(windowWidth * 0.6, windowHeight * 0.6); // 创建画布，占窗口80%
+   
    // Initialize circles with positions and sizes
    for(let i = 0; i < numOfCircles; i++){
      myCircles.push(new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]));
@@ -231,8 +232,7 @@ function draw() {
     fill(0);
     textSize(16);
     noStroke();
-    textStyle(NORMAL);
-    text("🌳 Create your own apple tree! 🍎", width / 2, 620);
+    text("🌳 Create your own apple tree ! 🍎", width / 2, 620);
     text("Click to change the color of apples🎨", width / 2, 660);
     text("Press ①, ②, ③, ④ to switch seasons", width / 2, 680);
     text("Press⬅ ➡ to change the size of apples", width / 2, 700);
@@ -253,8 +253,8 @@ function playMusic() {
 
 // 用户首次点击鼠标时开始播放音乐
 function mousePressed() {
-    if (!isMusicStarted) {
-        isMusicStarted = true; // 标记音乐已开始播放
+    if (!musicStart) {
+        musicStart = true; // 标记音乐已开始播放
         playMusic(); // 开始播放音乐
     }
 
@@ -309,3 +309,7 @@ function keyPressed() {
         });
     }
 } 
+
+function windowResized() {
+    resizeCanvas(windowWidth * 0.6, windowHeight * 0.6); // 根据窗口调整画布大小
+}
