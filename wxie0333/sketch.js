@@ -63,7 +63,6 @@ class MyCircleClass {
    constructor(x, y, size) {
      this.x = x; // X position of circle
      this.y = y; // Y position of circle
-     this.size = size; // Size of circle
      this.originalColor1 = color(228, 102, 103);
      this.originalColor2 = color(142, 171, 126);
      this.stroke = 0; // Stroke weight for circle outline
@@ -71,15 +70,19 @@ class MyCircleClass {
      this.color2 = this.originalColor2; // Second color for half of circle (red)
      this.isHovered = false; // 是否悬停
      this.isClicked = false; // 是否已被点击
+     this.originalSize = size; // 初始直径
+     this.sizeOffset = 0; // 大小偏移量，用于调整大小
     }
 
     // 检测鼠标是否在圆内
     isMouseHovering() {
         let d = dist(mouseX, mouseY, this.x, this.y);
-        return d < this.size / 2; // 检查距离是否小于半径
+        return d < (this.originalSize + this.sizeOffset) / 2;
     }
 
     draw() {
+        let currentSize = this.originalSize + this.sizeOffset; // 当前大小
+
         if (this.isClicked) {
             // 如果已点击，保持点击时的随机颜色
             // 保持 color1 和 color2 不变
@@ -102,10 +105,10 @@ class MyCircleClass {
         // 绘制圆形的两半，分别填充颜色
         fill(this.color1);
         stroke(this.stroke);
-        arc(this.x, this.y, this.size, this.size, HALF_PI, -HALF_PI, PIE);
+        arc(this.x, this.y, currentSize, currentSize, HALF_PI, -HALF_PI, PIE);
 
         fill(this.color2);
-        arc(this.x, this.y, this.size, this.size, -HALF_PI, HALF_PI, PIE);
+        arc(this.x, this.y, currentSize, currentSize, -HALF_PI, HALF_PI, PIE);
     }
 
     // 检测鼠标点击
@@ -114,6 +117,12 @@ class MyCircleClass {
             // 如果点击在圆上，保留当前随机颜色
             this.isClicked = true;
         }
+    }
+
+    // 调整大小
+    adjustSize(amount) {
+        this.sizeOffset += amount;
+        this.sizeOffset = constrain(this.sizeOffset, -20, 20); // 限制大小变化范围为 ±20
     }
 }
   
@@ -251,6 +260,16 @@ function keyPressed() {
         currentBgIndex = 2;
         seasonText = "Autumn";
         musicChanged = true;
+    }
+
+    if (keyCode === LEFT_ARROW) {
+        myCircles.forEach(circle => {
+            circle.adjustSize(-2); // 按下左箭头减小圆的直径
+        });
+    } else if (keyCode === RIGHT_ARROW) {
+        myCircles.forEach(circle => {
+            circle.adjustSize(2); // 按下右箭头增大圆的直径
+        });
     }
 
     // 如果背景改变，播放对应的音乐
