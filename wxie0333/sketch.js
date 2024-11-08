@@ -1,22 +1,17 @@
 let myCircles = [];// Array to store circle
-let numOfCircles = 33;// Number of circles
 let bgImages = []; // Background image
-let bottomX = 111; // X position of the semicircles at bottom most(1-5)
-let bottomY = 494;  // Y position of semicircles at the bottom most(1-5)
-let diameter1 = 34; // Diameter of the semicircles at bottom most(1-5)+bottom big(2&3)
-let diameter2 = 25; // Diameter of the semicircles at bottom (2&3)
-let spacing1 = 37;  // Spacing between the bottom most semicircles (1-5)
-let spacing2 = 105; // Spacing for bottom big semicircles(1&4)
-let spacing3 = 43;  // Spacing for bottom small semicircles(2&3)
-let topX1 = 148;  // X position for bottom big semicircles(1&4)
-let topX2 = 180; // X position for bottom small semicircles(2&3) 
-let topY = 445; // Y position for bottom big+small semicircles(1-4)
+let numOfCircles = 33;// Number of circles
+
+// Bottom element position and size
+const bottomX = 111, bottomY = 494, diameter1 = 34, diameter2 = 25;
+const spacing1 = 37, spacing2 = 105, spacing3 = 43;
+const topX1 = 148, topX2 = 180, topY = 445;
+
 let currentBgIndex = 3;  // 初始背景为冬天
 let seasonText = "Winter"; // 当前季节文字
-let music = []; // 用于存储每个季节的音乐
+let music = []; // Background music
 let currentMusic = null; // 当前播放的音乐
-let musicChanged = false;
-let isMusicStarted = false; // 标记音乐是否已开始播放
+let isMusicStarted = false, let musicChanged = false;
 
 
 function preload() {
@@ -26,7 +21,7 @@ function preload() {
    bgImages[2] = loadImage('assets/autumn.jpg');
    bgImages[3] = loadImage('assets/winter_background.jpg');
 
-    // 预加载音乐
+    // Preload background music
     music[0] = loadSound('assets/spring.mp3');
     music[1] = loadSound('assets/summer.mp3');
     music[2] = loadSound('assets/autumn.mp3');
@@ -40,14 +35,15 @@ let circlePositions = [
     [180,165],[170,185],[190,183],[210,204],[230,185],[241,170],[210,230],
     [210,289],[200,340],[202,385],[208,410],[200,432]
 ];
-let circleDiameters = [50, 43, 29, 27, 23, 40, 53, 28, 26, 20, 
+let circleDiameters = [
+    50, 43, 29, 27, 23, 40, 53, 28, 26, 20, 
     31, 22, 33, 35, 25, 44, 20, 15, 33, 22, 20, 
     16, 16, 26, 35, 22, 16, 20, 
-    47, 61, 30, 23, 23];
+    47, 61, 30, 23, 23
+];
 
 function setup() {
-   createCanvas(400, 600);
-   textSize(48); // 设置季节文字大小
+   createCanvas(400, 800);
 
    // Initialize circles with positions and sizes
    for(let i = 0; i < numOfCircles; i++){
@@ -111,8 +107,6 @@ class MyCircleClass {
         fill(this.color2);
         arc(this.x, this.y, currentSize, currentSize, -HALF_PI, HALF_PI, PIE);
         
-        // 自定义三条白色直线的坐标
-
     }
 
     // 检测鼠标点击
@@ -131,7 +125,7 @@ class MyCircleClass {
 }
   
 function draw() {
-    background(bgImages[currentBgIndex]);// 绘制当前背景图
+    image(bgImages[currentBgIndex], 0, 0);// 绘制当前背景图
 
     // 自定义文字的颜色
     if (seasonText === "Winter") {
@@ -143,13 +137,14 @@ function draw() {
     } else if (seasonText === "Autumn") {
         fill(105, 56, 20);
     }
-
+    textSize(36); // 设置季节文字大小
     noStroke();//不要字体描边
-    text(seasonText, 200, 70);//设置字体位置
+    textAlign(CENTER);
+    textFont('Comic Sans MS')
+    text(seasonText, width / 2, 70);//设置字体位置
 
     stroke(255); // 设置线条颜色为白色
     strokeWeight(2); // 线条粗细
-
     line(85, 40, 90, 120);
     line(90, 120, 114, 130);
     line(114, 130, 125, 245);
@@ -159,15 +154,13 @@ function draw() {
     line(200, 445, 210, 204);
     line(210, 204, 180, 183);
     line(210, 204, 241, 170)
-    
+
     // Draw each circle in the array
     for (let i = 0; i < numOfCircles; i++) {
       myCircles[i].draw();
     }
 
     stroke(0);
-    strokeWeight(2);
-
     // Bottom green rectangle
     fill(142, 171, 126);
     rect(27, 450, 345, 55);
@@ -233,7 +226,19 @@ function draw() {
     // Yellow stroke for the bottom rectangle line
     stroke(217, 194, 125);
     line(130, 446, 270, 446);
+
+    // 绘制交互规则文字
+    fill(0);
+    textSize(16);
+    noStroke();
+    textStyle(NORMAL);
+    text("🌳 Create your own apple tree! 🍎", width / 2, 620);
+    text("Click to change the color of apples🎨", width / 2, 660);
+    text("Press ①, ②, ③, ④ to switch seasons", width / 2, 680);
+    text("Press⬅ ➡ to change the size of apples", width / 2, 700);
+    text("Press the spacebar to restore the color💚🧡", width / 2, 720);
 }
+
 
 function playMusic() {
     // 如果当前有音乐在播放，先停止
@@ -304,4 +309,3 @@ function keyPressed() {
         });
     }
 } 
-
