@@ -1,18 +1,15 @@
 let myCircles = [];// Array to store circle
 let bgImages = []; // Background image
 let numOfCircles = 33;// Number of circles
-
-// Bottom element position and size
-const bottomX = 111, bottomY = 494, diameter1 = 34, diameter2 = 25;
-const spacing1 = 37, spacing2 = 105, spacing3 = 43;
-const topX1 = 148, topX2 = 180, topY = 445;
-
 let currentBgIndex = 3;  // Initial background is winter
 let seasonText = "Winter"; // Initial season text
 let music = []; // Background music
 let currentMusic = null; // Play music
-let musicStart = false, musicChanged = false
-let canvas;
+let musicStart = false, musicChanged = false;
+// Bottom element position and size
+const bottomX = 111, bottomY = 494, diameter1 = 34, diameter2 = 25;
+const spacing1 = 37, spacing2 = 105, spacing3 = 43;
+const topX1 = 148, topX2 = 180, topY = 445;
 
 function preload() {
    // Preload background image
@@ -43,16 +40,15 @@ let circleDiameters = [
 ];
 
 function setup() {
-   createCanvas(400, 800);
-   canvas = createCanvas(windowWidth * 0.6, windowHeight * 0.6); // 创建画布，占窗口80%
-   
-   // Initialize circles with positions and sizes
+    createCanvas(400, 800);
+    
+    // Initialize circles with positions and sizes
    for(let i = 0; i < numOfCircles; i++){
      myCircles.push(new MyCircleClass(circlePositions[i][0], circlePositions[i][1], circleDiameters[i]));
 
     }
 
-   // 播放初始背景音乐（冬季）
+   // Play initial background music
    playMusic();
 }
   
@@ -66,69 +62,68 @@ class MyCircleClass {
      this.stroke = 0; // Stroke weight for circle outline
      this.color1 = this.originalColor1; // First color for half of circle (green)
      this.color2 = this.originalColor2; // Second color for half of circle (red)
-     this.isHovered = false; // 是否悬停
-     this.isClicked = false; // 是否已被点击
-     this.originalSize = size; // 初始直径
-     this.sizeOffset = 0; // 大小偏移量，用于调整大小
+     this.hovered = false;
+     this.isClicked = false;
+     this.originalSize = size; // initial diameter
+     this.sizeOffset = 0; // Size offset, used for resizing
     }
 
-    // 检测鼠标是否在圆内
-    isMouseHovering() {
+    // Make sure the mouse is inside the circle
+    isHovering() {
         let d = dist(mouseX, mouseY, this.x, this.y);
         return d < (this.originalSize + this.sizeOffset) / 2;
     }
 
     draw() {
-        let currentSize = this.originalSize + this.sizeOffset; // 当前大小
+        let currentSize = this.originalSize + this.sizeOffset;
 
         if (this.isClicked) {
-            // 如果已点击，保持点击时的随机颜色
-            // 保持 color1 和 color2 不变
-        } else if (this.isMouseHovering()) {
-            if (!this.isHovered) {
-                colorMode(HSB, 255); // 设置颜色模式为 HSB
-                // 首次悬停时生成随机颜色
+            // Keep random color on click
+        } else if (this.isHovering()) {
+            if (!this.hovered) {
+                colorMode(HSB, 255); // Set the color mode to HSB
+                // Generate random colors on hover
                 this.color1 = color(random(255), 60, random(180, 255));
                 this.color2 = color(random(255), 60, random(180, 255));
-                this.isHovered = true;
-                colorMode(RGB, 255); // 设置颜色模式为 HSB
+                this.hovered = true;
+                colorMode(RGB, 255); // Set the color mode to RGB
             }
         } else {
-            // 鼠标移开时恢复原始颜色
+            // Return to original color when mouse is moved away
             this.color1 = this.originalColor1;
             this.color2 = this.originalColor2;
-            this.isHovered = false;
+            this.hovered = false;
         }
 
-        // 绘制圆形的两半，分别填充颜色
+        // Draw first half of the circle with color1
         fill(this.color1);
         stroke(this.stroke);
+        // Reference: https://p5js.org/zh-Hans/reference/p5/arc/
         arc(this.x, this.y, currentSize, currentSize, HALF_PI, -HALF_PI, PIE);
-
+        // Draw second half of the circle with color2
         fill(this.color2);
         arc(this.x, this.y, currentSize, currentSize, -HALF_PI, HALF_PI, PIE);
-        
     }
 
-    // 检测鼠标点击
+    // click on the circle, keep the current random color
     checkClick() {
-        if (this.isMouseHovering()) {
-            // 如果点击在圆上，保留当前随机颜色
+        if (this.isHovering()) {
             this.isClicked = true;
         }
     }
 
-    // 调整大小
+    // adjust circles' sizes
     adjustSize(amount) {
         this.sizeOffset += amount;
-        this.sizeOffset = constrain(this.sizeOffset, -20, 20); // 限制大小变化范围为 ±20
+        // Limit the apple to infinite size, the maximum value is ±20
+        this.sizeOffset = constrain(this.sizeOffset, -20, 20);
     }
 }
   
 function draw() {
-    image(bgImages[currentBgIndex], 0, 0);// 绘制当前背景图
+    image(bgImages[currentBgIndex], 0, 0);// Set background image
 
-    // 自定义文字的颜色
+    // Customize text color
     if (seasonText === "Winter") {
         fill(173, 216, 230);
     } else if (seasonText === "Spring") {
@@ -138,14 +133,15 @@ function draw() {
     } else if (seasonText === "Autumn") {
         fill(105, 56, 20);
     }
-    textSize(36); // 设置季节文字大小
-    noStroke();//不要字体描边
+    textSize(36);
+    noStroke();
     textAlign(CENTER);
     textFont('Comic Sans MS')
-    text(seasonText, width / 2, 70);//设置字体位置
+    text(seasonText, width / 2, 70);
 
-    stroke(255); // 设置线条颜色为白色
-    strokeWeight(2); // 线条粗细
+    // draw tree trunks
+    stroke(255);
+    strokeWeight(2);
     line(85, 40, 90, 120);
     line(90, 120, 114, 130);
     line(114, 130, 125, 245);
@@ -192,24 +188,21 @@ function draw() {
       fill(i % 2 === 0 ? color(142, 171, 126) : color(228, 102, 103));
       arc(topX1 + i * spacing2, topY, diameter1, diameter1, 0, PI);
     }
-
     // Semicircles bottom small 2&3
     for (let i = 0; i < 2; i++) {
       fill(i % 2 === 0 ? color(228, 102, 103) : color(142, 171, 126));
       arc(topX2 + i * spacing3, topY, diameter2, diameter2, 0, PI);
-  }
-
+    }
     // Semicircles bottom most 1&2&3
     for (let i = 0; i < 3; i++) {
         fill(i % 3 === 0 ? color(142, 171, 126) : (i % 3 === 1 ? color(217, 194, 125) : color(228, 102, 103)));
         arc(bottomX + i * spacing1, bottomY, diameter1, diameter1, PI, 0);
     }
-
     // Semicircles bottom most 4&5
     for (let i = 0; i < 2; i++) {
         fill(i % 2 === 0 ? color(228, 102, 103) : color(217, 194, 125));
         arc(bottomX + i * spacing1 + 110, bottomY, diameter1, diameter1, PI, 0);
-    }     
+    }
 
     // Add black strokes and draw semicircles bottom 1&4
     stroke(0);
@@ -228,7 +221,7 @@ function draw() {
     stroke(217, 194, 125);
     line(130, 446, 270, 446);
 
-    // 绘制交互规则文字
+    // add interaction instruction
     fill(0);
     textSize(16);
     noStroke();
@@ -241,31 +234,31 @@ function draw() {
 
 
 function playMusic() {
-    // 如果当前有音乐在播放，先停止
+    // If there is music playing, stop it first
     if (currentMusic && currentMusic.isPlaying()) {
         currentMusic.stop();
     }
 
-    // 设置并播放新的背景音乐
+    // Set and play new background music
     currentMusic = music[currentBgIndex];
-    currentMusic.loop(); // 设置循环播放
+    currentMusic.loop();
 }
 
-// 用户首次点击鼠标时开始播放音乐
+// Start playing music when the user clicks the mouse for the first time
 function mousePressed() {
     if (!musicStart) {
-        musicStart = true; // 标记音乐已开始播放
-        playMusic(); // 开始播放音乐
+        musicStart = true;
+        playMusic();
     }
 
-    // 在主程序的 mousePressed 函数中调用 checkClick
+    // Check if the circle was clicked
     myCircles.forEach(circle => {
         circle.checkClick();
     });
 }
 
+// Switch background and text buttons
 function keyPressed() {
-    // 切换背景和文字的按键控制
     if (key === '1') {
         currentBgIndex = 3;
         seasonText = "Winter";
@@ -284,32 +277,29 @@ function keyPressed() {
         musicChanged = true;
     }
 
+    // arrows control the size of circles
     if (keyCode === LEFT_ARROW) {
         myCircles.forEach(circle => {
-            circle.adjustSize(-2); // 按下左箭头减小圆的直径
+            circle.adjustSize(-2);
         });
     } else if (keyCode === RIGHT_ARROW) {
         myCircles.forEach(circle => {
-            circle.adjustSize(2); // 按下右箭头增大圆的直径
+            circle.adjustSize(2);
         });
     }
 
-    // 如果背景改变，播放对应的音乐
+    // Music changes with the background
     if (musicChanged) {
         playMusic();
-        musicChanged = false; // 确保音乐不重新播放
+        musicChanged = false; // make sure the music is not playing
     }
 
+    // Restore each apple's original color and reset the click state
     if (key === ' ') {
-        // 恢复每个苹果的原始颜色，并重置点击状态
         myCircles.forEach(circle => {
-            circle.color1 = circle.originalColor1; // 原始颜色1
-            circle.color2 = circle.originalColor2; // 原始颜色2
-            circle.isClicked = false; // 重置点击状态
+            circle.color1 = circle.originalColor1;
+            circle.color2 = circle.originalColor2;
+            circle.isClicked = false;
         });
     }
-} 
-
-function windowResized() {
-    resizeCanvas(windowWidth * 0.6, windowHeight * 0.6); // 根据窗口调整画布大小
 }
